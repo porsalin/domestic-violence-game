@@ -1,9 +1,27 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><title>DOMESTIC VIOLENCE</title>
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="DOM VIOLENCE"><meta name="format-detection" content="telephone=no"><title>DOMESTIC VIOLENCE</title>
 <style>
 body{margin:0;background:#0a0a12;color:#ccd;font:13px monospace;display:flex;flex-direction:column;align-items:center}
 canvas{image-rendering:pixelated;image-rendering:crisp-edges;width:min(768px,96vw);aspect-ratio:256/224;background:#000;margin-top:8px;border:2px solid #333}
 #ctl{max-width:768px;white-space:pre;line-height:1.45;margin:6px;color:#aab}
 b{color:#fc6}
+
+html.touch,html.touch body{height:100%;overflow:hidden;position:fixed;inset:0;width:100%;overscroll-behavior:none}
+html.touch body{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;justify-content:center}
+html.touch canvas{position:absolute;margin:0;border:0;aspect-ratio:auto}
+html.touch #ctl{display:none}
+#tc{display:none;position:fixed;inset:0;pointer-events:none;z-index:5}
+html.touch #tc{display:block}
+#tc *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:none}
+#joy{position:absolute;pointer-events:auto;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.10),rgba(255,255,255,.04) 70%);border:2px solid rgba(255,255,255,.25)}
+#knob{position:absolute;border-radius:50%;background:radial-gradient(circle at 35% 35%,rgba(255,80,80,.75),rgba(140,0,0,.65));border:2px solid rgba(0,0,0,.4);box-shadow:0 2px 6px rgba(0,0,0,.6);pointer-events:none}
+.tb{position:absolute;pointer-events:auto;border-radius:50%;display:flex;align-items:center;justify-content:center;font:bold 12px monospace;color:rgba(255,255,255,.9);text-shadow:0 1px 0 #000;border:2px solid rgba(0,0,0,.45);box-shadow:inset 0 -3px 0 rgba(0,0,0,.3),0 2px 5px rgba(0,0,0,.5);opacity:.62}
+.tb.on{opacity:.95;transform:scale(.92);filter:brightness(1.4)}
+.sm{position:absolute;pointer-events:auto;padding:6px 10px;border-radius:8px;background:rgba(30,30,50,.6);border:1px solid rgba(255,255,255,.35);font:bold 11px monospace;color:#fff}
+#rot{display:none;position:fixed;inset:0;z-index:9;background:#0a0a12;color:#fc6;font:bold 18px monospace;text-align:center;flex-direction:column;align-items:center;justify-content:center}
+#rot div{font-size:54px;animation:rr 1.6s infinite}@keyframes rr{0%,30%{transform:rotate(0)}60%,100%{transform:rotate(-90deg)}}
+@media (orientation:portrait){html.touch #rot{display:flex}}
 </style></head><body><canvas id="c" width="256" height="224"></canvas>
 <div id="ctl"><b>CONTROLS</b>            MOVE        LP  HP  LK  HK   SPECIAL1 SPECIAL2 SUPER
 Player 1      W A S D      F   G   V   B    R        T        Y
@@ -877,7 +895,7 @@ function drawTitle(){bgFancy('#301050','#100020');
  for(const [x,y] of[[76,132],[112,132],[148,132],[76,154],[148,154]]){R(x,y,18,14,G.fc%60<30&&x==112?'#ffe080':'#f0c040');R(x+8,y,2,14,'#180818');}R(116,156,24,24,'#402010');
  logo('DOMESTIC',128,28,4);logo('VIOLENCE',128,62,4);txt('A FAMILY SQUABBLE IN 16 BITS',128,98,'#ffd0f0',1,1);
  const opts=['ARCADE','VS CPU','2P VERSUS','BLOOD: '+(G.blood?'ON':'OFF')];R(78,178,100,38,'rgba(0,0,0,.6)');opts.forEach((o,i)=>{txt((G.menu==i?'> ':'  ')+o,92,180+i*9,G.menu==i?'#ffe040':'#c0c0c0');});
- txt('P1 WASD+FGVB RTY  P2 ARROWS+IOKL UP;',128,217,'#8090b0',1,1,null);txt('(C)2026 HOUSEHOLD BRAWL',4,4,'#7060a0',1,0,null);if(G.fc%60<40)txt('PRESS F/ENTER',252,4,'#ffe040',1,2,null);}
+ txt('P1 WASD+FGVB RTY  P2 ARROWS+IOKL UP;',128,217,'#8090b0',1,1,null);txt('(C)2026 HOUSEHOLD BRAWL',4,4,'#7060a0',1,0,null);if(G.fc%60<40)txt(document.documentElement.classList.contains('touch')?'TAP TO START':'PRESS F/ENTER',252,4,'#ffe040',1,2,null);}
 function updTitle(){if(mUp(0)||mUp(1)){G.menu=(G.menu+3)%4;sfx('sel');}if(mDn(0)||mDn(1)){G.menu=(G.menu+1)%4;sfx('sel');}
  if(G.menu==3){if(mOK(0)||mOK(1)||mL(0)||mR(0)||mL(1)||mR(1)){G.blood=!G.blood;sfx('ok');}return;}
  if(mOK(0)||mOK(1)){sfx('ok');G.mode=G.menu;G.scene='select';G.lock=[0,G.mode==2?0:1];G.sel=[0,4];G.ss=0;G.st2=0;playSong('select');}}
@@ -925,4 +943,72 @@ function render(){ctx=SCR;ctx.imageSmoothingEnabled=false;R(0,0,W,H,'#000');swit
 function loop(now){acc+=Math.min(100,now-last);last=now;let n=0;while(acc>=1000/60&&n<5){frame();acc-=1000/60;n++;}render();requestAnimationFrame(loop);}
 G.blood=true;buildStages();playSong('title');loadSprites(()=>requestAnimationFrame(loop));
 window.__DV={bleed,startFatality,FINS,G,CH,K,mkF,startMatch,startSuper,startSp,frame,render,mkPlayers};
+</script>
+<div id="tc"><div id="joy"><div id="knob"></div></div>
+<div class="tb" data-k="KeyF" style="background:#d03030">LP</div><div class="tb" data-k="KeyG" style="background:#d07020">HP</div>
+<div class="tb" data-k="KeyV" style="background:#2060d0">LK</div><div class="tb" data-k="KeyB" style="background:#7030c0">HK</div>
+<div class="tb" data-k="KeyR" style="background:#20a050">S1</div><div class="tb" data-k="KeyT" style="background:#109090">S2</div>
+<div class="tb" data-k="KeyY" style="background:#e0b000;color:#300">SUP</div>
+<div class="sm" id="bBack" data-k="Escape">&#9664; BACK</div><div class="sm" id="bPause" data-k="Enter">II PAUSE</div></div>
+<div id="rot"><div>&#128241;</div><p>ROTATE YOUR PHONE<br>TO LANDSCAPE</p></div>
+<script>
+(function(){
+const isTouch=('ontouchstart' in window)||navigator.maxTouchPoints>0;
+const unlock=()=>{try{initAudio();if(AC&&AC.state!=='running')AC.resume();if(AC&&!unlock.done){const b=AC.createBuffer(1,1,22050),s=AC.createBufferSource();s.buffer=b;s.connect(AC.destination);s.start(0);unlock.done=1;}}catch(e){}};
+document.addEventListener('touchstart',unlock,{passive:true});document.addEventListener('touchend',unlock,{passive:true});document.addEventListener('pointerdown',unlock);
+if(!isTouch)return;
+document.documentElement.classList.add('touch');
+const no=e=>e.preventDefault();
+['touchmove','gesturestart','gesturechange','dblclick','contextmenu','selectstart'].forEach(t=>document.addEventListener(t,no,{passive:false}));
+let lastT=0;document.addEventListener('touchend',e=>{const n=Date.now();if(n-lastT<350)e.preventDefault();lastT=n;},{passive:false});
+const tc=document.getElementById('tc'),joy=document.getElementById('joy'),knob=document.getElementById('knob');
+const btns=[...tc.querySelectorAll('.tb')];const bBack=document.getElementById('bBack'),bPause=document.getElementById('bPause');
+const DIRK=['KeyW','KeyA','KeyS','KeyD'];let JR=60;
+function layout(){
+ const vv=window.visualViewport,vw=vv?vv.width:innerWidth,vh=vv?vv.height:innerHeight,dpr=devicePixelRatio||1;
+ const cs=getComputedStyle(document.documentElement);const sa=k=>parseFloat(cs.getPropertyValue(k))||0;
+ const L=sa('--sl'),Rr=sa('--sr'),T=sa('--st'),B=sa('--sb');
+ const aw=vw-L-Rr,ah=vh-T-B;let sc=Math.min(aw/256,ah/224);
+ sc=sc>=2?Math.floor(sc):Math.max(1/dpr,Math.floor(sc*dpr)/dpr);
+ const w=256*sc,h=224*sc,x=Math.round(L+(aw-w)/2),y=Math.round(T+(ah-h)/2);
+ Object.assign(cv.style,{width:w+'px',height:h+'px',left:x+'px',top:y+'px'});
+ const side=Math.max(x-L,0),sz=Math.max(120,Math.min(170,side*.92,ah*.48));JR=sz/2;
+ Object.assign(joy.style,{width:sz+'px',height:sz+'px',left:(L+Math.max(6,(side-sz)/2))+'px',top:(T+ah-sz-12)+'px'});
+ const kn=sz*.42;Object.assign(knob.style,{width:kn+'px',height:kn+'px',left:(sz-kn)/2-2+'px',top:(sz-kn)/2-2+'px'});
+ const bs=Math.max(38,Math.min(58,(ah-60)/3.6,side/3.45)),g=bs*1.12,rx=vw-Rr-Math.max(4,(side-g*2-bs)/2)-g*2-bs;
+ const P=[[0,1],[1,.85],[0,2],[1,1.85],[2,0],[2,1],[2,2]];
+ btns.forEach((b,i)=>{const[c,r]=P[i];Object.assign(b.style,{width:bs+'px',height:bs+'px',left:(rx+c*g)+'px',top:(T+ah-g*3-10+r*g)+'px'});});
+ Object.assign(bBack.style,{left:(L+8)+'px',top:(T+8)+'px'});Object.assign(bPause.style,{right:(Rr+8)+'px',top:(T+8)+'px'});
+}
+document.documentElement.style.cssText+='--sl:env(safe-area-inset-left);--sr:env(safe-area-inset-right);--st:env(safe-area-inset-top);--sb:env(safe-area-inset-bottom)';
+addEventListener('resize',layout);addEventListener('orientationchange',()=>setTimeout(layout,250));if(window.visualViewport)visualViewport.addEventListener('resize',layout);layout();
+// joystick (8-way)
+let jid=null;
+function setDir(dx,dy){const m=Math.hypot(dx,dy),dz=JR*.28;let u=0,d=0,l=0,r=0;
+ if(m>dz){const a=Math.atan2(dy,dx),o=Math.round(a/(Math.PI/4));const oc=((o%8)+8)%8;r=[0,1,7].includes(oc);d=[1,2,3].includes(oc);l=[3,4,5].includes(oc);u=[5,6,7].includes(oc);}
+ K.KeyW=u?1:0;K.KeyS=d?1:0;K.KeyA=l?1:0;K.KeyD=r?1:0;const k=Math.min(m,JR*.6),f=m?k/m:0;knob.style.transform=`translate(${dx*f}px,${dy*f}px)`;}
+function jpos(e){const b=joy.getBoundingClientRect();setDir(e.clientX-b.left-b.width/2,e.clientY-b.top-b.height/2);}
+joy.addEventListener('pointerdown',e=>{e.preventDefault();jid=e.pointerId;joy.setPointerCapture(e.pointerId);jpos(e);});
+joy.addEventListener('pointermove',e=>{if(e.pointerId===jid){e.preventDefault();jpos(e);}});
+const jend=e=>{if(e.pointerId===jid){jid=null;setDir(0,0);}};joy.addEventListener('pointerup',jend);joy.addEventListener('pointercancel',jend);joy.addEventListener('lostpointercapture',jend);
+// buttons (multi-touch: each element tracks its own pointers)
+function bindBtn(b){const k=b.dataset.k,ids=new Set();
+ b.addEventListener('pointerdown',e=>{e.preventDefault();ids.add(e.pointerId);try{b.setPointerCapture(e.pointerId)}catch(_){}K[k]=1;b.classList.add('on');});
+ const up=e=>{if(!ids.delete(e.pointerId))return;if(!ids.size){b.classList.remove('on');setTimeout(()=>{if(!ids.size)K[k]=0;},34);}};
+ b.addEventListener('pointerup',up);b.addEventListener('pointercancel',up);b.addEventListener('lostpointercapture',up);}
+btns.forEach(bindBtn);bindBtn(bBack);bindBtn(bPause);
+// tap-to-select on the canvas for menus
+const tapKey=k=>{K[k]=1;setTimeout(()=>K[k]=0,70);};
+function gp(e){const b=cv.getBoundingClientRect();return[(e.clientX-b.left)*256/b.width,(e.clientY-b.top)*224/b.height];}
+const inR=(x,y,a,b,w,h)=>x>=a&&x<a+w&&y>=b&&y<b+h;
+cv.addEventListener('pointerdown',e=>{e.preventDefault();const[x,y]=gp(e);const sc=G.scene;
+ if(sc==='title'){for(let i=0;i<4;i++)if(inR(x,y,74,178+i*9,110,9)){if(G.menu===i)tapKey('KeyF');else{G.menu=i;sfx('sel');}return;}tapKey('KeyF');}
+ else if(sc==='select'){for(let i=0;i<6;i++){const px=28+(i%3)*68,py=122+(i/3|0)*48;if(inR(x,y,px-3,py-3,62,50)){if(G.lock[0])return;if(G.sel[0]===i)tapKey('KeyF');else{G.sel[0]=i;sfx('sel');}return;}}}
+ else if(sc==='stage'){for(let i=0;i<10;i++){const px=8+(i%5)*50,py=28+(i/5|0)*80;if(inR(x,y,px-2,py-2,50,60)){if(G.ss===i)tapKey('KeyF');else{G.ss=i;sfx('sel');}return;}}}
+ else if(sc==='fight'){if(G.pause)tapKey('Enter');}
+ else tapKey('KeyF');});
+// context-sensitive UI
+const FSC={fight:1};let ls='';
+(function vis(){const sc=G.scene+(G.pause?'p':'');if(sc!==ls){ls=sc;const f=G.scene==='fight';bPause.style.display=f?'':'none';bBack.style.display=(G.scene==='select'||G.scene==='stage')?'':'none';}requestAnimationFrame(vis);})();
+})();
 </script></body></html>
